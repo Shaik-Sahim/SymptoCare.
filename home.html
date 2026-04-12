@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SymptoCare | Advanced AI-Powered Healthcare Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Complete healthcare ecosystem with AI diagnostics, telemedicine, pharmacy, and health tracking">
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --ae-blue: #0ea5e9;
+      --ae-cyan: #22d3ee;
+      --ae-dark: #020617;
+      --ae-success: #10b981;
+      --ae-danger: #ef4444;
+      --ae-warning: #f59e0b;
+      --ae-card: #ffffff;
+      --ae-bg: #f8fafc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--ae-bg); color: var(--ae-dark); overflow-x: hidden; }
+    h1, h2, h3, h4, .navbar-brand { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -1px; }
+
+    /* --- NAVIGATION --- */
+    .navbar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid #e2e8f0; transition: 0.3s; }
+    .navbar.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .navbar-brand { font-size: 1.75rem !important; transition: 0.3s; }
+    .navbar-brand:hover { transform: scale(1.05); }
+    .navbar-toggler { border: 2px solid var(--ae-blue); border-radius: 12px; padding: 8px 12px; }
+    .navbar-toggler:focus { box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25); }
+    .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(14, 165, 233, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+    .nav-link { font-weight: 600; color: #475569 !important; cursor: pointer; transition: all 0.3s; padding: 10px 16px !important; position: relative; border-radius: 12px; font-size: 0.95rem; white-space: nowrap; }
+    .nav-link:hover { color: var(--ae-blue) !important; background: rgba(14, 165, 233, 0.08); }
+    .nav-link.active { color: var(--ae-blue) !important; background: rgba(14, 165, 233, 0.12); }
+    .nav-link::after { content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: var(--ae-blue); transition: 0.3s; border-radius: 3px; }
+    .nav-link.active::after { width: 40%; }
+    .nav-link.text-danger:hover { color: #dc2626 !important; background: rgba(239, 68, 68, 0.08); }
+    .navbar-nav { align-items: center; }
+    
+    @media (max-width: 991px) {
+      .navbar-nav { width: 100%; }
+      .nav-link { padding: 12px 20px !important; margin: 4px 0; }
+      .navbar-collapse { padding: 20px 0; }
+    }
+
+    /* --- PAGE TRANSITIONS --- */
+    .view-section { display: none; min-height: 100vh; padding-top: 110px; animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .view-section.active { display: block; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- PREMIUM CARDS --- */
+    .nexus-card { background: var(--ae-card); border-radius: 30px; border: 1px solid rgba(0,0,0,0.05); padding: 35px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .nexus-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.08); border-color: var(--ae-blue); }
+    .stat-card { background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); color: white; }
+
+    /* --- AI SCANNER --- */
+    .scanner-viewport { background: #000; border-radius: 40px; position: relative; overflow: hidden; aspect-ratio: 16/9; border: 6px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+    .laser-scan { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--ae-cyan), transparent); box-shadow: 0 0 20px var(--ae-cyan); top: 0; animation: scanAnim 2.5s infinite ease-in-out; display: none; z-index: 10; }
+    @keyframes scanAnim { 0%, 100% { top: 0; } 50% { top: calc(100% - 3px); } }
+    
+    .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: none; z-index: 5; }
+    .scan-overlay.active { display: block; }
+
+    /* --- VAULT SIDEBAR --- */
+    .vault-sidebar { position: fixed; right: 0; top: 90px; width: 380px; height: calc(100vh - 120px); background: var(--ae-dark); color: white; border-radius: 30px 0 0 30px; z-index: 2000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.3); }
+    .vault-sidebar.closed { right: -380px; }
+    .vault-toggle { position: absolute; left: -60px; top: 30px; width: 60px; height: 120px; background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); border-radius: 15px 0 0 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; writing-mode: vertical-rl; font-weight: 800; color: white; box-shadow: -5px 5px 15px rgba(0,0,0,0.2); transition: 0.3s; }
+    .vault-toggle:hover { background: var(--ae-blue); transform: translateX(-5px); }
+    .vault-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 4px solid var(--ae-cyan); animation: slideInVault 0.3s; }
+    @keyframes slideInVault { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .vault-stat { background: rgba(34, 211, 238, 0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(34, 211, 238, 0.3); }
+    .vault-close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; transition: 0.3s; }
+    .vault-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+    /* --- BUTTONS --- */
+    .btn-nexus { background: linear-gradient(135deg, var(--ae-dark), #1e293b); color: white; border: none; padding: 18px 40px; border-radius: 18px; font-weight: 800; transition: all 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .btn-nexus:hover { background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); transform: translateY(-3px); box-shadow: 0 15px 35px rgba(14, 165, 233, 0.3); color: white; }
+    .btn-buy { background: var(--ae-success); color: white; border: none; padding: 10px 22px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; transition: 0.3s; }
+    .btn-buy:hover { background: #059669; transform: scale(1.05); }
+
+    /* --- SYMPTOM TAGS --- */
+    .tag-symptom { background: #f1f5f9; padding: 14px 24px; border-radius: 18px; font-weight: 600; cursor: pointer; display: inline-block; margin: 6px; transition: all 0.3s; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .tag-symptom:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .tag-symptom.selected { background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); color: white; border-color: var(--ae-cyan); box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3); }
+    
+    /* --- LAB INPUTS --- */
+    .lab-input-group { background: #f8fafc; padding: 25px; border-radius: 20px; border: 2px solid #e2e8f0; transition: 0.3s; }
+    .lab-input-group:hover { border-color: var(--ae-blue); box-shadow: 0 5px 20px rgba(14, 165, 233, 0.1); }
+    .form-control { border-radius: 12px; border: 2px solid #e2e8f0; padding: 12px 18px; transition: 0.3s; }
+    .form-control:focus { border-color: var(--ae-blue); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
+
+    /* --- HEALTH TRACKER --- */
+    .metric-box { background: white; border-radius: 20px; padding: 20px; text-align: center; border: 2px solid #e2e8f0; transition: 0.3s; }
+    .metric-box:hover { border-color: var(--ae-blue); transform: translateY(-5px); }
+    .metric-value { font-size: 2.5rem; font-weight: 800; color: var(--ae-blue); }
+
+    /* --- APPOINTMENT CARD --- */
+    .appointment-card { background: white; border-left: 5px solid var(--ae-blue); border-radius: 15px; padding: 20px; margin-bottom: 15px; transition: 0.3s; }
+    .appointment-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); transform: translateX(5px); }
+
+    /* --- DOCTOR CARD --- */
+    .doctor-card { text-align: center; transition: 0.3s; }
+    .doctor-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--ae-blue); margin: 0 auto 15px; object-fit: cover; }
+    .rating-stars { color: #fbbf24; }
+
+    /* --- CHAT WIDGET --- */
+    .chat-widget { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 3000; overflow: hidden; }
+    .chat-widget.open { display: flex; }
+    .chat-header { background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); color: white; padding: 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #f8fafc; }
+    .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; }
+    .chat-bubble { background: white; padding: 12px 18px; border-radius: 18px; margin-bottom: 10px; max-width: 80%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .chat-bubble.user { background: var(--ae-blue); color: white; margin-left: auto; }
+    .chat-toggle { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--ae-blue), var(--ae-cyan)); color: white; border: none; font-size: 24px; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4); cursor: pointer; transition: 0.3s; z-index: 2999; }
+    .chat-toggle:hover { transform: scale(1.1); }
+
+    /* --- PROGRESS BARS --- */
+    .health-progress { height: 12px; border-radius: 10px; background: #e2e8f0; overflow: hidden; margin-top: 8px; }
+    .health-progress-bar { height: 100%; background: linear-gradient(90deg, var(--ae-blue), var(--ae-cyan)); transition: width 1s ease; }
+
+    /* --- ANIMATIONS --- */
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .pulse-animation { animation: pulse 2s infinite; }
+
+    /* --- MODALS --- */
+    .modal-content { border-radius: 25px; border: none; }
+    .modal-header { border-bottom: 2px solid #e2e8f0; }
+
+    /* --- BADGE STYLES --- */
+    .badge-custom { padding: 8px 16px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+      .vault-sidebar { width: 100%; right: -100%; border-radius: 0; top: 0; height: 100vh; }
+      .vault-sidebar.closed { right: -100%; }
+      .vault-toggle { left: -60px; }
+      .chat-widget { width: 100%; right: 0; bottom: 0; border-radius: 25px 25px 0 0; height: 70vh; }
+      .scanner-viewport { border-radius: 25px; }
+    }
+    
+    @media (max-width: 1400px) {
+      .vault-sidebar { right: -380px; }
+      .vault-sidebar.closed { right: -380px; }
+    }
+
+    /* --- LOADING SPINNER --- */
+    .spinner-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
+    .spinner-overlay.active { display: flex; }
+    .spinner { width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); border-top-color: var(--ae-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* --- NOTIFICATION TOAST --- */
+    .toast-container { position: fixed; top: 100px; right: 30px; z-index: 4000; }
+    .toast-custom { background: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-left: 5px solid var(--ae-success); min-width: 300px; animation: slideInRight 0.3s; }
+    @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<!-- Loading Spinner -->
+<div class="spinner-overlay" id="loadingSpinner">
+  <div class="spinner"></div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Vault Sidebar -->
+<div class="vault-sidebar" id="vault">
+    <button class="vault-close-btn" onclick="toggleVault()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="vault-toggle" onclick="toggleVault()">
+      <i class="bi bi-folder2-open"></i> VAULT
+    </div>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-cyan me-2"></i>Medical Vault</h4>
+        <small class="text-white-50">Secure Health Records</small>
+      </div>
+    </div>
+    
+    <!-- Vault Statistics -->
+    <div class="vault-stat">
+      <div class="row g-2 text-center">
+        <div class="col-4">
+          <div class="fw-bold fs-5 text-cyan" id="vault-count">0</div>
+          <small class="text-white-50">Records</small>
+        </div>
+        <div class="col-4">
+          <div class="fw-bold fs-5 text-cyan" id="vault-scans">0</div>
+          <small class="text-white-50">Scans</small>
+        </div>
+        <div class="col-4">
+          <div class="fw-bold fs-5 text-cyan" id="vault-tests">0</div>
+          <small class="text-white-50">Tests</small>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="mb-3 d-flex gap-2">
+      <button class="btn btn-sm btn-outline-light rounded-pill flex-grow-1" onclick="exportVault()">
+        <i class="bi bi-download me-1"></i>Export
+      </button>
+      <button class="btn btn-sm btn-outline-danger rounded-pill flex-grow-1" onclick="clearVault()">
+        <i class="bi bi-trash me-1"></i>Clear
+      </button>
+    </div>
+    
+    <hr style="border-color: rgba(255,255,255,0.2);">
+    
+    <h6 class="fw-bold mb-3 text-white-50"><i class="bi bi-clock-history me-2"></i>Recent Activity</h6>
+    <div id="vault-data">
+      <p class="text-white-50 text-center py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>No medical records yet</p>
+    </div>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg fixed-top py-3" id="mainNavbar">
+  <div class="container">
+    <a class="navbar-brand fs-2 text-primary text-decoration-none d-flex align-items-center gap-2" onclick="showView('home')">
+      <i class="bi bi-heart-pulse-fill"></i>
+      SymptoCare<span class="text-dark">.</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto gap-2">
+        <li><a class="nav-link active" id="n-home" onclick="showView('home')">Home</a></li>
+        <li><a class="nav-link" id="n-pharmacy" onclick="showView('pharmacy')">Pharmacy</a></li>
+        <li><a class="nav-link" id="n-vision" onclick="showView('vision')">Vision AI</a></li>
+        <li><a class="nav-link" id="n-lab" onclick="showView('lab')">Diagnostics</a></li>
+        <li><a class="nav-link" id="n-health" onclick="showView('health')">Health Tracker</a></li>
+        <li><a class="nav-link" id="n-appointments" onclick="showView('appointments')">Appointments</a></li>
+        <li><a class="nav-link" id="n-telemedicine" onclick="showView('telemedicine')">Telemedicine</a></li>
+        <li><a class="nav-link text-danger fw-bold" id="n-emergency" onclick="showView('emergency')"><i class="bi bi-exclamation-triangle-fill me-1"></i>Emergency</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME SECTION -->
+<div id="home" class="view-section active">
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5 py-5">
+      <div class="col-lg-6">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-4 fw-bold">
+          <i class="bi bi-stars"></i> v7.0 Advanced AI Healthcare
+        </span>
+        <h1 class="display-1 fw-800 mb-4" style="line-height: 0.95;">
+          Your Complete <br>
+          <span class="text-primary">Health Companion.</span>
+        </h1>
+        <p class="lead text-secondary mb-5">
+          AI-powered diagnostics, telemedicine consultations, smart pharmacy, health tracking, and personalized care—all in one platform. Your health, intelligently managed.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <button class="btn btn-nexus" onclick="showView('pharmacy')">
+            <i class="bi bi-capsule me-2"></i>Explore Pharmacy
+          </button>
+          <button class="btn btn-outline-dark rounded-4 px-4" onclick="showView('vision')">
+            <i class="bi bi-camera me-2"></i>Launch AI Scanner
+          </button>
+          <button class="btn btn-outline-primary rounded-4 px-4" onclick="openChat()">
+            <i class="bi bi-chat-dots me-2"></i>AI Assistant
+          </button>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="row g-3 mt-5">
+          <div class="col-4">
+            <div class="stat-card nexus-card text-center p-3">
+              <h3 class="fw-bold mb-0">50K+</h3>
+              <small>Users Served</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-card nexus-card text-center p-3">
+              <h3 class="fw-bold mb-0">98%</h3>
+              <small>Satisfaction</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-card nexus-card text-center p-3">
+              <h3 class="fw-bold mb-0">24/7</h3>
+              <small>Support</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" class="img-fluid rounded-5 shadow-lg" alt="Medical Technology">
+      </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="py-5 mt-5">
+        <div class="text-center mb-5">
+          <h2 class="fw-800 mb-3">Comprehensive Healthcare Ecosystem</h2>
+          <p class="text-secondary">Everything you need for complete health management</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-camera-fill fs-1 text-primary mb-3"></i>
+                <h5 class="fw-bold">AI Vision Scanner</h5>
+                <p class="small text-muted">Facial, dental & ENT analysis with instant recommendations</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-graph-up-arrow fs-1 text-success mb-3"></i>
+                <h5 class="fw-bold">Health Tracking</h5>
+                <p class="small text-muted">Monitor vitals, medications & wellness goals</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-prescription2 fs-1 text-warning mb-3"></i>
+                <h5 class="fw-bold">Smart Pharmacy</h5>
+                <p class="small text-muted">Symptom-based medicine with one-click ordering</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-hospital fs-1 text-danger mb-3"></i>
+                <h5 class="fw-bold">Telemedicine</h5>
+                <p class="small text-muted">Video consultations with certified doctors</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-clipboard2-pulse fs-1 text-info mb-3"></i>
+                <h5 class="fw-bold">Diagnostic Lab</h5>
+                <p class="small text-muted">Complete blood work & organ function analysis</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-calendar-check fs-1 text-purple mb-3"></i>
+                <h5 class="fw-bold">Appointments</h5>
+                <p class="small text-muted">Easy scheduling with specialists near you</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-shield-fill-check fs-1 text-success mb-3"></i>
+                <h5 class="fw-bold">Medical Vault</h5>
+                <p class="small text-muted">Secure storage of all health records</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="nexus-card text-center">
+                <i class="bi bi-robot fs-1 text-primary mb-3"></i>
+                <h5 class="fw-bold">AI Assistant</h5>
+                <p class="small text-muted">24/7 health guidance & symptom checker</p>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHARMACY SECTION -->
+<div id="pharmacy" class="view-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <div class="nexus-card p-5">
+                    <div class="text-center mb-5">
+                      <h2 class="fw-800 mb-3">AI-Powered Symptom Pharmacy</h2>
+                      <p class="text-secondary">Select your symptoms and get instant medication recommendations</p>
+                    </div>
+                    
+                    <!-- Symptom Categories -->
+                    <div class="mb-5">
+                      <h5 class="fw-bold mb-3"><i class="bi bi-thermometer-half text-danger me-2"></i>Common Symptoms</h5>
+                      <div id="symptom-cloud">
+                          <div class="tag-symptom" onclick="selSym(this, 'Migraine/Headache')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Headache</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Acidity/Heartburn')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Acidity</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Fever/Flu')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Fever</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Cold/Cough')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Cold & Cough</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Body Pain')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Body Pain</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Fatigue')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Fatigue</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Nausea')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Nausea</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Diarrhea')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Diarrhea</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Constipation')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Constipation</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Allergies')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Allergies</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Joint Pain')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Joint Pain</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Back Pain')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Back Pain</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Insomnia')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Insomnia</div>
+                          <div class="tag-symptom" onclick="selSym(this, 'Anxiety')"><i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Anxiety</div>
+                      </div>
+                    </div>
+                    
+                    <div class="text-center">
+                      <button class="btn btn-nexus btn-lg px-5 py-3" onclick="genPharmacy()">
+                        <i class="bi bi-prescription2 me-2"></i>Generate AI Recommendations
+                      </button>
+                    </div>
+                    
+                    <!-- Results Shelf -->
+                    <div id="pharmacy-shelf" class="row g-4 mt-5 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VISION AI SECTION -->
+<div id="vision" class="view-section">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+          <h2 class="display-4 fw-800 mb-3">Neural Vision AI Scanner</h2>
+          <p class="text-secondary">Advanced facial analysis for skin, dental, and ENT health assessment</p>
+        </div>
+        
+        <div class="d-flex justify-content-center gap-3 mb-5 flex-wrap">
+            <button class="btn btn-outline-primary rounded-pill px-4 py-3" onclick="prepScan('Skin & Facial Analysis')">
+              <i class="bi bi-person-bounding-box me-2"></i>Skin Analysis
+            </button>
+            <button class="btn btn-outline-success rounded-pill px-4 py-3" onclick="prepScan('Dental Health Scan')">
+              <i class="bi bi-emoji-smile me-2"></i>Dental Scan
+            </button>
+            <button class="btn btn-outline-warning rounded-pill px-4 py-3" onclick="prepScan('ENT & Throat Examination')">
+              <i class="bi bi-soundwave me-2"></i>ENT Check
+            </button>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="scanner-viewport">
+                <div class="laser-scan" id="laser"></div>
+                <div class="scan-overlay" id="scanOverlay"></div>
+                <div id="scan-ui" class="text-center">
+                    <i class="bi bi-camera-fill display-1 text-white opacity-25 mb-3"></i>
+                    <h2 class="text-white opacity-50 mb-4" id="scan-label">SELECT SCAN TYPE</h2>
+                    <button class="btn btn-nexus btn-lg" id="cam-btn" style="display:none;" onclick="startCam()">
+                      <i class="bi bi-camera-video me-2"></i>Initialize AI Camera
+                    </button>
+                </div>
+                <video id="webcam" autoplay playsinline class="d-none w-100 h-100" style="object-fit:cover;"></video>
+                <canvas id="snapshot-canvas" class="d-none w-100 h-100" style="object-fit:contain;"></canvas>
+                <img id="captured-photo" class="d-none w-100 h-100" style="object-fit:contain;" alt="Captured Photo">
+            </div>
+            
+            <div class="text-center mt-4">
+              <button class="btn btn-success btn-lg rounded-pill px-5 d-none" id="capture-btn" onclick="capturePhoto()">
+                <i class="bi bi-camera-fill me-2"></i>Capture Photo
+              </button>
+              <button class="btn btn-danger btn-lg rounded-pill px-5 d-none" id="snap" onclick="runVisionAI()">
+                <i class="bi bi-cpu me-2"></i>Analyze with AI
+              </button>
+              <button class="btn btn-outline-secondary btn-lg rounded-pill px-5 d-none" id="retake-btn" onclick="retakePhoto()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Retake Photo
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AI Results -->
+        <div id="vision-results" class="mt-5 d-none">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="nexus-card p-5">
+                    <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+                      <div>
+                        <h4 class="fw-bold mb-1">AI Analysis Results</h4>
+                        <p class="text-muted mb-0 small"><i class="bi bi-check-circle-fill text-success me-1"></i>Scan Type: <span id="v-title" class="fw-bold">---</span></p>
+                      </div>
+                      <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="downloadReport()">
+                        <i class="bi bi-download me-1"></i>Download Report
+                      </button>
+                    </div>
+                    <div class="p-4 bg-light rounded-4 mb-4">
+                      <h6 class="fw-bold text-primary mb-2"><i class="bi bi-robot me-2"></i>AI Diagnosis</h6>
+                      <p id="v-desc" class="mb-0"></p>
+                    </div>
+                    <h6 class="fw-bold mb-3"><i class="bi bi-bag-check text-success me-2"></i>Recommended Products</h6>
+                    <div id="v-products" class="row g-3"></div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DIAGNOSTIC LAB SECTION -->
+<div id="lab" class="view-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <div class="nexus-card p-5">
+                    <div class="text-center mb-5">
+                      <h2 class="fw-800 mb-3">Advanced Diagnostic Laboratory</h2>
+                      <p class="text-secondary">Enter your lab values for comprehensive health analysis</p>
+                    </div>
+                    
+                    <div class="row g-4 mb-4">
+                        <!-- Metabolic Panel -->
+                        <div class="col-md-6">
+                            <div class="lab-input-group">
+                                <h6 class="fw-bold mb-3">
+                                  <i class="bi bi-activity text-danger me-2"></i>Metabolic Panel (Diabetes)
+                                </h6>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Fasting Glucose (mg/dL)</label>
+                                  <input type="number" id="l-f" class="form-control" placeholder="Normal: 70-100">
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Post-Meal Glucose (mg/dL)</label>
+                                  <input type="number" id="l-pp" class="form-control" placeholder="Normal: <140">
+                                </div>
+                                <div>
+                                  <label class="form-label small fw-600">HbA1c (%)</label>
+                                  <input type="number" step="0.1" id="l-hba1c" class="form-control" placeholder="Normal: <5.7">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cardiac Panel -->
+                        <div class="col-md-6">
+                            <div class="lab-input-group">
+                                <h6 class="fw-bold mb-3">
+                                  <i class="bi bi-heart-pulse text-primary me-2"></i>Cardiac Panel (Blood Pressure)
+                                </h6>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Systolic BP (mmHg)</label>
+                                  <input type="number" id="l-sys" class="form-control" placeholder="Normal: 90-120">
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Diastolic BP (mmHg)</label>
+                                  <input type="number" id="l-dia" class="form-control" placeholder="Normal: 60-80">
+                                </div>
+                                <div>
+                                  <label class="form-label small fw-600">Heart Rate (bpm)</label>
+                                  <input type="number" id="l-hr" class="form-control" placeholder="Normal: 60-100">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Renal & Hepatic -->
+                        <div class="col-md-6">
+                            <div class="lab-input-group">
+                                <h6 class="fw-bold mb-3">
+                                  <i class="bi bi-droplet-half text-info me-2"></i>Renal & Hepatic Function
+                                </h6>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Creatinine (mg/dL) - Kidney</label>
+                                  <input type="number" step="0.1" id="l-cre" class="form-control" placeholder="Normal: 0.7-1.3">
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">ALT (U/L) - Liver</label>
+                                  <input type="number" id="l-alt" class="form-control" placeholder="Normal: 7-56">
+                                </div>
+                                <div>
+                                  <label class="form-label small fw-600">Bilirubin (mg/dL)</label>
+                                  <input type="number" step="0.1" id="l-bili" class="form-control" placeholder="Normal: 0.3-1.2">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lipid Profile -->
+                        <div class="col-md-6">
+                            <div class="lab-input-group">
+                                <h6 class="fw-bold mb-3">
+                                  <i class="bi bi-pie-chart text-warning me-2"></i>Lipid Profile (Cholesterol)
+                                </h6>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">Total Cholesterol (mg/dL)</label>
+                                  <input type="number" id="l-total-chol" class="form-control" placeholder="Normal: <200">
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label small fw-600">LDL - Bad (mg/dL)</label>
+                                  <input type="number" id="l-ldl" class="form-control" placeholder="Normal: <100">
+                                </div>
+                                <div>
+                                  <label class="form-label small fw-600">HDL - Good (mg/dL)</label>
+                                  <input type="number" id="l-hdl" class="form-control" placeholder="Normal: >40">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                      <button class="btn btn-nexus btn-lg px-5 py-3" onclick="processLab()">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>Generate Complete Health Report
+                      </button>
+                    </div>
+                    
+                    <!-- Lab Results -->
+                    <div id="lab-results-box" class="mt-5 d-none">
+                        <div class="p-5 border rounded-5 bg-white shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                              <h4 class="fw-bold mb-0">Comprehensive Health Report</h4>
+                              <span class="badge badge-custom bg-success">AI Analyzed</span>
+                            </div>
+                            <div id="lab-verdicts" class="row g-4"></div>
+                            <div class="mt-4 p-4 bg-light rounded-4">
+                              <h6 class="fw-bold mb-2"><i class="bi bi-lightbulb text-warning me-2"></i>Overall Health Score</h6>
+                              <div class="d-flex align-items-center gap-3">
+                                <div class="health-progress flex-grow-1">
+                                  <div class="health-progress-bar" id="overall-health-bar" style="width: 0%"></div>
+                                </div>
+                                <span class="fw-bold fs-4" id="health-score">0%</span>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEALTH TRACKER SECTION -->
+<div id="health" class="view-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-800 mb-3">Personal Health Tracker</h2>
+      <p class="text-secondary">Monitor your daily health metrics and wellness goals</p>
+    </div>
+    
+    <div class="row g-4 mb-5">
+      <!-- Today's Metrics -->
+      <div class="col-md-3">
+        <div class="metric-box">
+          <i class="bi bi-droplet-fill text-info fs-2 mb-2"></i>
+          <div class="metric-value" id="water-intake">0</div>
+          <p class="mb-0 small text-muted">Glasses of Water</p>
+          <button class="btn btn-sm btn-primary mt-2 rounded-pill" onclick="incrementMetric('water')">
+            <i class="bi bi-plus-lg"></i> Add
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-box">
+          <i class="bi bi-pie-chart-fill text-warning fs-2 mb-2"></i>
+          <div class="metric-value" id="calories">0</div>
+          <p class="mb-0 small text-muted">Calories Consumed</p>
+          <button class="btn btn-sm btn-primary mt-2 rounded-pill" onclick="openCalorieModal()">
+            <i class="bi bi-pencil"></i> Log
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-box">
+          <i class="bi bi-bicycle text-success fs-2 mb-2"></i>
+          <div class="metric-value" id="steps">0</div>
+          <p class="mb-0 small text-muted">Steps Walked</p>
+          <button class="btn btn-sm btn-primary mt-2 rounded-pill" onclick="openStepsModal()">
+            <i class="bi bi-pencil"></i> Log
+          </button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-box">
+          <i class="bi bi-moon-stars-fill text-purple fs-2 mb-2"></i>
+          <div class="metric-value" id="sleep-hours">0</div>
+          <p class="mb-0 small text-muted">Hours Slept</p>
+          <button class="btn btn-sm btn-primary mt-2 rounded-pill" onclick="openSleepModal()">
+            <i class="bi bi-pencil"></i> Log
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Medication Reminders -->
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="nexus-card">
+          <h5 class="fw-bold mb-4"><i class="bi bi-alarm text-primary me-2"></i>Medication Reminders</h5>
+          <div id="medication-list">
+            <p class="text-muted text-center py-3">No medications scheduled</p>
+          </div>
+          <button class="btn btn-outline-primary w-100 rounded-pill mt-3" onclick="openMedicationModal()">
+            <i class="bi bi-plus-circle me-2"></i>Add Medication
+          </button>
+        </div>
+      </div>
+      
+      <!-- Weekly Goals -->
+      <div class="col-lg-6">
+        <div class="nexus-card">
+          <h5 class="fw-bold mb-4"><i class="bi bi-trophy text-warning me-2"></i>Weekly Health Goals</h5>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small fw-600">Exercise (150 min/week)</span>
+              <span class="small fw-bold text-primary">60%</span>
+            </div>
+            <div class="health-progress">
+              <div class="health-progress-bar" style="width: 60%"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small fw-600">Water Intake (56 glasses)</span>
+              <span class="small fw-bold text-primary">75%</span>
+            </div>
+            <div class="health-progress">
+              <div class="health-progress-bar" style="width: 75%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small fw-600">Sleep (49 hours)</span>
+              <span class="small fw-bold text-primary">85%</span>
+            </div>
+            <div class="health-progress">
+              <div class="health-progress-bar" style="width: 85%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPOINTMENTS SECTION -->
+<div id="appointments" class="view-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-800 mb-3">Appointment Management</h2>
+      <p class="text-secondary">Schedule and manage your doctor appointments</p>
+    </div>
+    
+    <div class="row g-4">
+      <!-- Upcoming Appointments -->
+      <div class="col-lg-7">
+        <div class="nexus-card">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="bi bi-calendar3 text-primary me-2"></i>Upcoming Appointments</h5>
+            <button class="btn btn-primary btn-sm rounded-pill" onclick="openBookingModal()">
+              <i class="bi bi-plus-circle me-1"></i>Book New
+            </button>
+          </div>
+          <div id="appointments-list">
+            <div class="appointment-card">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="fw-bold mb-1">Dr. Sarah Johnson</h6>
+                  <p class="small text-muted mb-2"><i class="bi bi-hospital me-1"></i>General Physician</p>
+                  <p class="small mb-0"><i class="bi bi-calendar-event me-1 text-primary"></i>Feb 5, 2026 - 10:00 AM</p>
+                </div>
+                <button class="btn btn-sm btn-outline-danger rounded-pill">Cancel</button>
+              </div>
+            </div>
+            <div class="appointment-card">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="fw-bold mb-1">Dr. Michael Chen</h6>
+                  <p class="small text-muted mb-2"><i class="bi bi-hospital me-1"></i>Cardiologist</p>
+                  <p class="small mb-0"><i class="bi bi-calendar-event me-1 text-primary"></i>Feb 8, 2026 - 2:30 PM</p>
+                </div>
+                <button class="btn btn-sm btn-outline-danger rounded-pill">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Find Doctors -->
+      <div class="col-lg-5">
+        <div class="nexus-card">
+          <h5 class="fw-bold mb-4"><i class="bi bi-search text-primary me-2"></i>Find Specialists</h5>
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search by specialty or name...">
+          </div>
+          <div class="mb-3">
+            <select class="form-select">
+              <option>All Specialties</option>
+              <option>Cardiologist</option>
+              <option>Dermatologist</option>
+              <option>General Physician</option>
+              <option>Neurologist</option>
+              <option>Pediatrician</option>
+            </select>
+          </div>
+          <button class="btn btn-primary w-100 rounded-pill">
+            <i class="bi bi-search me-2"></i>Search Doctors
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TELEMEDICINE SECTION -->
+<div id="telemedicine" class="view-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-800 mb-3">Telemedicine Consultations</h2>
+      <p class="text-secondary">Connect with certified doctors from anywhere, anytime</p>
+    </div>
+    
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="nexus-card text-center">
+          <i class="bi bi-camera-video-fill fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Video Consultation</h5>
+          <p class="small text-muted mb-3">Face-to-face consultation with specialists</p>
+          <button class="btn btn-primary w-100 rounded-pill" onclick="startVideoCall()">Start Now</button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="nexus-card text-center">
+          <i class="bi bi-chat-dots-fill fs-1 text-success mb-3"></i>
+          <h5 class="fw-bold">Chat Consultation</h5>
+          <p class="small text-muted mb-3">Quick text-based medical advice</p>
+          <button class="btn btn-success w-100 rounded-pill" onclick="openChat()">Chat Now</button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="nexus-card text-center">
+          <i class="bi bi-telephone-fill fs-1 text-warning mb-3"></i>
+          <h5 class="fw-bold">Phone Consultation</h5>
+          <p class="small text-muted mb-3">Talk to a doctor on call</p>
+          <button class="btn btn-warning w-100 rounded-pill" onclick="phoneCall()">Call Now</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Available Doctors -->
+    <div class="nexus-card">
+      <h5 class="fw-bold mb-4"><i class="bi bi-people text-primary me-2"></i>Available Doctors Now</h5>
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="doctor-card nexus-card">
+            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=200" class="doctor-avatar" alt="Doctor">
+            <h6 class="fw-bold mb-1">Dr. Emily Parker</h6>
+            <p class="small text-muted mb-2">Dermatologist</p>
+            <div class="rating-stars mb-2">★★★★★ <span class="text-dark">(4.9)</span></div>
+            <span class="badge bg-success-subtle text-success mb-3">Available</span>
+            <button class="btn btn-primary btn-sm w-100 rounded-pill">Consult Now</button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="doctor-card nexus-card">
+            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200" class="doctor-avatar" alt="Doctor">
+            <h6 class="fw-bold mb-1">Dr. James Wilson</h6>
+            <p class="small text-muted mb-2">Cardiologist</p>
+            <div class="rating-stars mb-2">★★★★★ <span class="text-dark">(4.8)</span></div>
+            <span class="badge bg-success-subtle text-success mb-3">Available</span>
+            <button class="btn btn-primary btn-sm w-100 rounded-pill">Consult Now</button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="doctor-card nexus-card">
+            <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=200" class="doctor-avatar" alt="Doctor">
+            <h6 class="fw-bold mb-1">Dr. Lisa Chen</h6>
+            <p class="small text-muted mb-2">Pediatrician</p>
+            <div class="rating-stars mb-2">★★★★☆ <span class="text-dark">(4.7)</span></div>
+            <span class="badge bg-warning-subtle text-warning mb-3">Busy</span>
+            <button class="btn btn-outline-primary btn-sm w-100 rounded-pill">Join Queue</button>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="doctor-card nexus-card">
+            <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200" class="doctor-avatar" alt="Doctor">
+            <h6 class="fw-bold mb-1">Dr. Robert Kumar</h6>
+            <p class="small text-muted mb-2">Neurologist</p>
+            <div class="rating-stars mb-2">★★★★★ <span class="text-dark">(5.0)</span></div>
+            <span class="badge bg-success-subtle text-success mb-3">Available</span>
+            <button class="btn btn-primary btn-sm w-100 rounded-pill">Consult Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Prescription Upload -->
+    <div class="row g-4 mt-4">
+      <div class="col-lg-6">
+        <div class="nexus-card">
+          <h5 class="fw-bold mb-4"><i class="bi bi-file-earmark-medical text-primary me-2"></i>Upload Prescription</h5>
+          <div class="border-2 border-dashed rounded-4 p-5 text-center" style="border-color: #e2e8f0;">
+            <i class="bi bi-cloud-upload fs-1 text-primary mb-3"></i>
+            <p class="mb-3">Drag and drop your prescription here or click to browse</p>
+            <button class="btn btn-outline-primary rounded-pill">Choose File</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="nexus-card">
+          <h5 class="fw-bold mb-4"><i class="bi bi-clock-history text-primary me-2"></i>Recent Consultations</h5>
+          <div class="d-flex align-items-center gap-3 p-3 border rounded-3 mb-2">
+            <i class="bi bi-person-circle fs-3 text-primary"></i>
+            <div class="flex-grow-1">
+              <strong class="d-block">Dr. Sarah Mitchell</strong>
+              <small class="text-muted">General Checkup - 2 days ago</small>
+            </div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill">View</button>
+          </div>
+          <div class="d-flex align-items-center gap-3 p-3 border rounded-3">
+            <i class="bi bi-person-circle fs-3 text-primary"></i>
+            <div class="flex-grow-1">
+              <strong class="d-block">Dr. Michael Brown</strong>
+              <small class="text-muted">Skin Consultation - 5 days ago</small>
+            </div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill">View</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMERGENCY SECTION -->
+<div id="emergency" class="view-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="badge bg-danger-subtle text-danger px-4 py-2 rounded-pill mb-3 fw-bold fs-6">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Emergency Services
+      </div>
+      <h2 class="fw-800 mb-3 text-danger">24/7 Emergency Support</h2>
+      <p class="text-secondary">Immediate medical assistance when you need it most</p>
+    </div>
+    
+    <!-- Emergency Contacts -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="nexus-card text-center border-danger">
+          <i class="bi bi-hospital-fill fs-1 text-danger mb-3 pulse-animation"></i>
+          <h5 class="fw-bold">Emergency Ambulance</h5>
+          <p class="fs-2 fw-bold text-danger mb-3">108 / 112</p>
+          <button class="btn btn-danger w-100 rounded-pill btn-lg" onclick="callEmergency('108')">
+            <i class="bi bi-telephone-fill me-2"></i>Call Now
+          </button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="nexus-card text-center border-danger">
+          <i class="bi bi-heart-pulse-fill fs-1 text-danger mb-3"></i>
+          <h5 class="fw-bold">Nearest Hospital</h5>
+          <p class="text-muted mb-3">City General Hospital<br>2.3 km away</p>
+          <button class="btn btn-outline-danger w-100 rounded-pill" onclick="findNearestHospital()">
+            <i class="bi bi-geo-alt-fill me-2"></i>Get Directions
+          </button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="nexus-card text-center border-danger">
+          <i class="bi bi-shield-fill-exclamation fs-1 text-danger mb-3"></i>
+          <h5 class="fw-bold">Emergency Doctor</h5>
+          <p class="text-muted mb-3">On-call specialist<br>Available 24/7</p>
+          <button class="btn btn-outline-danger w-100 rounded-pill" onclick="emergencyDoctor()">
+            <i class="bi bi-person-video3 me-2"></i>Connect Now
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- First Aid Guide -->
+    <div class="nexus-card mb-4">
+      <h5 class="fw-bold mb-4"><i class="bi bi-bookmark-heart-fill text-danger me-2"></i>Quick First Aid Guide</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="p-3 bg-danger-subtle rounded-3">
+            <h6 class="fw-bold text-danger mb-2"><i class="bi bi-heart me-2"></i>Heart Attack</h6>
+            <ul class="small mb-0 ps-3">
+              <li>Call emergency immediately</li>
+              <li>Help person sit down</li>
+              <li>Give aspirin if available</li>
+              <li>Monitor breathing</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 bg-warning-subtle rounded-3">
+            <h6 class="fw-bold text-warning mb-2"><i class="bi bi-droplet me-2"></i>Severe Bleeding</h6>
+            <ul class="small mb-0 ps-3">
+              <li>Apply direct pressure</li>
+              <li>Elevate wound if possible</li>
+              <li>Use clean cloth/bandage</li>
+              <li>Don't remove embedded objects</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 bg-info-subtle rounded-3">
+            <h6 class="fw-bold text-info mb-2"><i class="bi bi-thermometer me-2"></i>Choking</h6>
+            <ul class="small mb-0 ps-3">
+              <li>Encourage coughing</li>
+              <li>Perform Heimlich maneuver</li>
+              <li>Call for help if needed</li>
+              <li>Monitor consciousness</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Emergency Tips -->
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="nexus-card border-warning">
+          <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>When to Call Emergency</h5>
+          <ul class="mb-0">
+            <li class="mb-2">Difficulty breathing or shortness of breath</li>
+            <li class="mb-2">Chest pain or pressure lasting more than 2 minutes</li>
+            <li class="mb-2">Sudden severe headache or dizziness</li>
+            <li class="mb-2">Loss of consciousness or fainting</li>
+            <li class="mb-2">Severe allergic reaction</li>
+            <li class="mb-2">Uncontrolled bleeding</li>
+            <li class="mb-2">Signs of stroke (face drooping, arm weakness, speech difficulty)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="nexus-card border-success">
+          <h5 class="fw-bold mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Emergency Preparation</h5>
+          <ul class="mb-0">
+            <li class="mb-2">Keep emergency numbers easily accessible</li>
+            <li class="mb-2">Maintain a first aid kit at home</li>
+            <li class="mb-2">Know your blood type and allergies</li>
+            <li class="mb-2">Keep list of current medications</li>
+            <li class="mb-2">Know location of nearest hospital</li>
+            <li class="mb-2">Share medical conditions with family</li>
+            <li class="mb-2">Learn basic CPR and first aid</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI CHAT WIDGET -->
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+  <i class="bi bi-chat-dots-fill"></i>
+</button>
+
+<div class="chat-widget" id="chatWidget">
+  <div class="chat-header">
+    <div>
+      <i class="bi bi-robot me-2"></i>AI Health Assistant
+      <div class="small opacity-75">Always here to help</div>
+    </div>
+    <button class="btn btn-sm btn-light rounded-circle" onclick="toggleChat()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-bubble">
+      <strong>SymptoCare AI</strong>
+      <p class="mb-0 mt-1">Hi! I'm your AI health assistant. How can I help you today?</p>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <input type="text" class="form-control" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button class="btn btn-primary rounded-circle" onclick="sendMessage()">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Global Variables
+  let activeSymptoms = [];
+  let currentScanTarget = "";
+  let vaultCount = 0;
+  let vaultScans = 0;
+  let vaultTests = 0;
+  let medicationReminders = [];
+  let cameraStream = null;
+  let healthMetrics = {
+    water: 0,
+    calories: 0,
+    steps: 0,
+    sleep: 0
+  };
+
+  // Navbar Scroll Effect
+  window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('mainNavbar');
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+
+  // View Management
+  function showView(id) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const navLink = document.getElementById('n-' + id);
+    if (navLink) navLink.classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    // Close mobile menu
+    const navCollapse = document.getElementById('mainNav');
+    if (navCollapse.classList.contains('show')) {
+      bootstrap.Collapse.getInstance(navCollapse)?.hide();
+    }
+  }
+
+  // Toast Notifications
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast-custom';
+    toast.style.borderLeftColor = type === 'success' ? 'var(--ae-success)' : 'var(--ae-danger)';
+    toast.innerHTML = `
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-${type === 'success' ? 'check-circle-fill text-success' : 'exclamation-circle-fill text-danger'} fs-4"></i>
+        <div class="flex-grow-1">
+          <strong>${type === 'success' ? 'Success' : 'Alert'}</strong>
+          <p class="mb-0 small text-muted">${message}</p>
+        </div>
+      </div>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // Loading Spinner
+  function showLoading(show = true) {
+    document.getElementById('loadingSpinner').classList.toggle('active', show);
+  }
+
+  // Vault Management
+  function toggleVault() {
+    document.getElementById('vault').classList.toggle('closed');
+  }
+
+  function logVault(title, result, category = 'general') {
+    const vaultData = document.getElementById('vault-data');
+    vaultCount++;
+    document.getElementById('vault-count').textContent = vaultCount;
+    
+    // Update category counters
+    if (category === 'scan') {
+      vaultScans++;
+      document.getElementById('vault-scans').textContent = vaultScans;
+    } else if (category === 'test') {
+      vaultTests++;
+      document.getElementById('vault-tests').textContent = vaultTests;
+    }
+    
+    if (vaultData.innerHTML.includes('No medical records')) {
+      vaultData.innerHTML = '';
+    }
+    
+    const timestamp = new Date().toLocaleString();
+    const categoryIcons = {
+      scan: 'camera-fill',
+      test: 'clipboard2-pulse-fill',
+      pharmacy: 'capsule-pill',
+      general: 'file-earmark-medical-fill'
+    };
+    
+    const categoryColors = {
+      scan: '#22d3ee',
+      test: '#f59e0b',
+      pharmacy: '#10b981',
+      general: '#0ea5e9'
+    };
+    
+    vaultData.innerHTML = `
+      <div class="vault-item" style="border-left-color: ${categoryColors[category] || categoryColors.general}">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-${categoryIcons[category] || categoryIcons.general}" style="color: ${categoryColors[category] || categoryColors.general}"></i>
+            <strong class="text-white">${title}</strong>
+          </div>
+          <small class="text-white-50" style="font-size: 0.7rem;">${new Date().toLocaleTimeString()}</small>
+        </div>
+        <p class="mb-1 small" style="color: ${categoryColors[category] || categoryColors.general}">${result}</p>
+        <small class="text-white-50" style="font-size: 0.7rem;">${new Date().toLocaleDateString()}</small>
+      </div>
+    ` + vaultData.innerHTML;
+    
+    showToast(`Record added to vault: ${title}`);
+  }
+
+  function clearVault() {
+    if (confirm('Clear all medical records? This action cannot be undone.')) {
+      document.getElementById('vault-data').innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>No medical records yet</p>';
+      vaultCount = 0;
+      vaultScans = 0;
+      vaultTests = 0;
+      document.getElementById('vault-count').textContent = '0';
+      document.getElementById('vault-scans').textContent = '0';
+      document.getElementById('vault-tests').textContent = '0';
+      showToast('Vault cleared successfully');
+    }
+  }
+
+  function exportVault() {
+    showToast('Exporting medical records as PDF...');
+    setTimeout(() => {
+      showToast('Export complete! Check your downloads.');
+      logVault('Vault Export', 'All medical records exported to PDF', 'general');
+    }, 1500);
+  }
+
+  // PHARMACY FUNCTIONS
+  function selSym(el, symptom) {
+    el.classList.toggle('selected');
+    if (activeSymptoms.includes(symptom)) {
+      activeSymptoms = activeSymptoms.filter(s => s !== symptom);
+    } else {
+      activeSymptoms.push(symptom);
+    }
+  }
+
+  function genPharmacy() {
+    if (activeSymptoms.length === 0) {
+      showToast('Please select at least one symptom', 'error');
+      return;
+    }
+    
+    showLoading(true);
+    const shelf = document.getElementById('pharmacy-shelf');
+    shelf.innerHTML = "";
+    shelf.classList.remove('d-none');
+    
+    setTimeout(() => {
+      const medications = {
+        'Migraine/Headache': {name: 'Paracetamol 500mg', brand: 'Crocin / Dolo 650', price: '₹49', instructions: 'One tablet after food, max 3 times daily', icon: 'capsule'},
+        'Acidity/Heartburn': {name: 'Pantoprazole 40mg', brand: 'Pan-D / Digene', price: '₹89', instructions: 'One tablet empty stomach in morning', icon: 'heart'},
+        'Fever/Flu': {name: 'Paracetamol 650mg', brand: 'Dolo 650', price: '₹65', instructions: 'If fever >99°F, take after meals', icon: 'thermometer'},
+        'Cold/Cough': {name: 'Cetirizine 10mg', brand: 'Cetrizet / Alex', price: '₹39', instructions: 'One tablet at bedtime', icon: 'droplet'},
+        'Body Pain': {name: 'Ibuprofen 400mg', brand: 'Brufen / Combiflam', price: '₹79', instructions: 'After meals, max 2 times daily', icon: 'bandaid'},
+        'Fatigue': {name: 'Multivitamin Complex', brand: 'Becosules / Neurobion', price: '₹149', instructions: 'One capsule daily after breakfast', icon: 'lightning'},
+        'Nausea': {name: 'Ondansetron 4mg', brand: 'Emeset / Vomikind', price: '₹69', instructions: 'Before meals when needed', icon: 'emoji-dizzy'},
+        'Diarrhea': {name: 'Loperamide 2mg', brand: 'Imodium / Eldoper', price: '₹59', instructions: 'After each loose stool', icon: 'exclamation-triangle'},
+        'Constipation': {name: 'Lactulose Syrup', brand: 'Duphalac / Cremaffin', price: '₹129', instructions: '15ml at bedtime', icon: 'cup-straw'},
+        'Allergies': {name: 'Loratadine 10mg', brand: 'Claritin / Lorfast', price: '₹99', instructions: 'Once daily, morning or evening', icon: 'flower1'},
+        'Joint Pain': {name: 'Diclofenac Gel', brand: 'Volini / Voveran', price: '₹189', instructions: 'Apply topically 2-3 times daily', icon: 'asterisk'},
+        'Back Pain': {name: 'Methyl Salicylate Cream', brand: 'Moov / Iodex', price: '₹139', instructions: 'Massage gently on affected area', icon: 'activity'},
+        'Insomnia': {name: 'Melatonin 3mg', brand: 'Natrol / Sleep Aid', price: '₹299', instructions: '30 min before bedtime', icon: 'moon'},
+        'Anxiety': {name: 'Ashwagandha Extract', brand: 'Himalaya / Organic India', price: '₹349', instructions: 'One capsule twice daily', icon: 'emoji-smile'}
+      };
+      
+      activeSymptoms.forEach(symptom => {
+        const med = medications[symptom];
+        if (med) {
+          shelf.innerHTML += `
+            <div class="col-md-6 col-lg-4">
+              <div class="nexus-card border-primary p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <span class="badge bg-primary">${symptom} Relief</span>
+                  <i class="bi bi-${med.icon} fs-4 text-primary"></i>
+                </div>
+                <h5 class="fw-bold mb-2">${med.name}</h5>
+                <p class="small text-muted mb-2"><strong>Brand:</strong> ${med.brand}</p>
+                <p class="small text-secondary mb-3"><i class="bi bi-info-circle me-1"></i>${med.instructions}</p>
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <div>
+                      <div class="text-success fw-800 fs-4">${med.price}</div>
+                      <small class="text-muted">Per pack</small>
+                    </div>
+                    <button class="btn btn-buy" onclick="oneClickBuy('${med.name}', '${med.price}')">
+                      <i class="bi bi-cart-plus me-1"></i>Buy Now
+                    </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+      
+      showLoading(false);
+      window.scrollTo({top: document.getElementById('pharmacy-shelf').offsetTop - 100, behavior: 'smooth'});
+      logVault('Pharmacy Consultation', `${activeSymptoms.length} symptoms analyzed - Medications recommended`, 'pharmacy');
+    }, 1500);
+  }
+
+  function oneClickBuy(name, price) {
+    showToast(`Added to cart: ${name} - ${price}`);
+    logVault('Purchase: ' + name, `Price: ${price} | Status: Order Confirmed`, 'pharmacy');
+  }
+
+  // VISION AI FUNCTIONS
+  function prepScan(target) {
+    currentScanTarget = target;
+    const label = document.getElementById('scan-label');
+    label.textContent = target.toUpperCase();
+    label.style.opacity = '1';
+    document.getElementById('cam-btn').style.display = 'inline-block';
+    document.getElementById('vision-results').classList.add('d-none');
+    document.getElementById('snap').classList.add('d-none');
+    document.getElementById('capture-btn').classList.add('d-none');
+    document.getElementById('retake-btn').classList.add('d-none');
+    
+    // Hide captured photo if any
+    document.getElementById('captured-photo').classList.add('d-none');
+    document.getElementById('webcam').classList.add('d-none');
+    document.getElementById('scan-ui').classList.remove('d-none');
+  }
+
+  async function startCam() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      const video = document.getElementById('webcam');
+      video.srcObject = cameraStream;
+      video.classList.remove('d-none');
+      document.getElementById('scan-ui').classList.add('d-none');
+      document.getElementById('capture-btn').classList.remove('d-none');
+      document.getElementById('cam-btn').style.display = 'none';
+      showToast('Camera initialized! Position yourself and click Capture');
+    } catch (e) {
+      showToast('Camera access required for Vision AI', 'error');
+      console.error('Camera error:', e);
+    }
+  }
+
+  function capturePhoto() {
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('snapshot-canvas');
+    const capturedImg = document.getElementById('captured-photo');
+    
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw current video frame to canvas
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert canvas to image
+    const photoData = canvas.toDataURL('image/png');
+    capturedImg.src = photoData;
+    
+    // Stop camera stream
+    stopCamera();
+    
+    // Show captured photo and hide video
+    video.classList.add('d-none');
+    capturedImg.classList.remove('d-none');
+    document.getElementById('capture-btn').classList.add('d-none');
+    document.getElementById('snap').classList.remove('d-none');
+    document.getElementById('retake-btn').classList.remove('d-none');
+    
+    showToast('Photo captured! Ready for AI analysis');
+    logVault(`Photo Captured: ${currentScanTarget}`, 'Image saved for analysis', 'scan');
+  }
+
+  function stopCamera() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+    }
+  }
+
+  function retakePhoto() {
+    document.getElementById('captured-photo').classList.add('d-none');
+    document.getElementById('snap').classList.add('d-none');
+    document.getElementById('retake-btn').classList.add('d-none');
+    startCam();
+  }
+
+  function runVisionAI() {
+    showLoading(true);
+    document.getElementById('laser').style.display = 'block';
+    document.getElementById('scanOverlay').classList.add('active');
+    
+    setTimeout(() => {
+      document.getElementById('laser').style.display = 'none';
+      document.getElementById('scanOverlay').classList.remove('active');
+      showVisionVerdict();
+      showLoading(false);
+    }, 3000);
+  }
+
+  function showVisionVerdict() {
+    const results = document.getElementById('vision-results');
+    const title = document.getElementById('v-title');
+    const desc = document.getElementById('v-desc');
+    const products = document.getElementById('v-products');
+    
+    results.classList.remove('d-none');
+    title.textContent = currentScanTarget;
+    products.innerHTML = "";
+
+    const analyses = {
+      'Skin & Facial Analysis': {
+        diagnosis: '<strong>🔬 AI Neural Analysis Detected:</strong><br><br>' +
+                  '• <strong>Skin Tan Level:</strong> Moderate (Grade 3/5)<br>' +
+                  '• <strong>Environmental Pollution:</strong> High exposure detected<br>' +
+                  '• <strong>Acne & Dark Spots:</strong> 12 areas identified<br>' +
+                  '• <strong>Skin Hydration:</strong> Below optimal (62%)<br>' +
+                  '• <strong>Fine Lines:</strong> Early signs around eyes<br>' +
+                  '• <strong>Pore Size:</strong> Moderate enlargement<br><br>' +
+                  '<strong>💡 AI Recommendation:</strong> Daily SPF 50+ protection, Vitamin C brightening serum, and deep hydration treatment',
+        products: [
+          {name: 'SPF 50+ Sunscreen', desc: 'Broad spectrum UV protection', price: '₹499', rating: '4.8'},
+          {name: 'Vitamin C Serum 20%', desc: 'Brightening & anti-aging', price: '₹799', rating: '4.9'},
+          {name: 'Salicylic Face Wash', desc: 'Deep cleansing for acne', price: '₹399', rating: '4.7'},
+          {name: 'Hyaluronic Moisturizer', desc: 'Intense hydration boost', price: '₹599', rating: '4.6'},
+          {name: 'Niacinamide Serum 10%', desc: 'Pore minimizing formula', price: '₹549', rating: '4.7'},
+          {name: 'Night Repair Cream', desc: 'Anti-aging treatment', price: '₹899', rating: '4.8'}
+        ]
+      },
+      'Dental Health Scan': {
+        diagnosis: '<strong>🦷 AI Dental Analysis:</strong><br><br>' +
+                  '• <strong>Enamel Condition:</strong> Moderate yellowing detected<br>' +
+                  '• <strong>Plaque Buildup:</strong> 8 zones identified<br>' +
+                  '• <strong>Gum Health:</strong> Good (no inflammation)<br>' +
+                  '• <strong>Cavity Risk:</strong> Low risk assessment<br>' +
+                  '• <strong>Teeth Alignment:</strong> Normal<br>' +
+                  '• <strong>Stain Level:</strong> Surface stains from beverages<br><br>' +
+                  '<strong>💡 AI Recommendation:</strong> Professional whitening treatment + daily antibacterial care routine',
+        products: [
+          {name: 'Professional Whitening Kit', desc: 'Dentist-grade formula', price: '₹999', rating: '4.9'},
+          {name: 'Antibacterial Mouthwash', desc: 'Plaque prevention', price: '₹299', rating: '4.7'},
+          {name: 'Electric Toothbrush Pro', desc: 'Deep cleaning tech', price: '₹2,499', rating: '4.8'},
+          {name: 'Whitening Strips Pack', desc: '14-day treatment', price: '₹1,199', rating: '4.6'}
+        ]
+      },
+      'ENT & Throat Examination': {
+        diagnosis: '<strong>👂 AI ENT Assessment:</strong><br><br>' +
+                  '• <strong>Throat Condition:</strong> Normal, slight redness<br>' +
+                  '• <strong>Nasal Passage:</strong> Clear airways<br>' +
+                  '• <strong>Ear Canal:</strong> Healthy condition<br>' +
+                  '• <strong>Tonsils:</strong> Normal size<br>' +
+                  '• <strong>Inflammation:</strong> None detected<br>' +
+                  '• <strong>Overall Status:</strong> Healthy ENT system<br><br>' +
+                  '<strong>💡 AI Recommendation:</strong> Preventive throat care and regular steam inhalation for maintenance',
+        products: [
+          {name: 'Throat Soothing Spray', desc: 'Natural herbal relief', price: '₹249', rating: '4.6'},
+          {name: 'Steam Inhaler Device', desc: 'Nasal & throat care', price: '₹1,099', rating: '4.5'},
+          {name: 'Saline Nasal Spray', desc: 'Daily nasal hygiene', price: '₹199', rating: '4.7'}
+        ]
+      }
+    };
+
+    const analysis = analyses[currentScanTarget] || analyses['Skin & Facial Analysis'];
+    desc.innerHTML = analysis.diagnosis;
+    
+    analysis.products.forEach(product => {
+      products.innerHTML += `
+        <div class="col-md-6 col-lg-4">
+          <div class="nexus-card p-3 h-100">
+            <div class="mb-2">
+              <div class="fw-bold mb-1">${product.name}</div>
+              <p class="small text-muted mb-2">${product.desc}</p>
+              <div class="small text-warning mb-2">★★★★★ ${product.rating}</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <span class="fw-bold text-success">${product.price}</span>
+              <button class="btn btn-buy btn-sm" onclick="oneClickBuy('${product.name}', '${product.price}')">Buy</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    logVault(`AI Scan: ${currentScanTarget}`, 'Analysis completed with product recommendations', 'scan');
+    window.scrollTo({top: results.offsetTop - 100, behavior: 'smooth'});
+  }
+
+  function downloadReport() {
+    showToast('Generating AI health report PDF...');
+    setTimeout(() => {
+      showToast('Report downloaded successfully!');
+      logVault('Vision AI Report', `Downloaded: ${currentScanTarget} analysis`, 'scan');
+    }, 1500);
+  }
+
+  // DIAGNOSTIC LAB FUNCTIONS
+  function processLab() {
+    const resultsBox = document.getElementById('lab-results-box');
+    const verdicts = document.getElementById('lab-verdicts');
+    verdicts.innerHTML = "";
+    resultsBox.classList.remove('d-none');
+    
+    showLoading(true);
+    
+    setTimeout(() => {
+      let totalScore = 100;
+      let issues = 0;
+      
+      // Metabolic Panel
+      const fasting = parseFloat(document.getElementById('l-f').value);
+      const postMeal = parseFloat(document.getElementById('l-pp').value);
+      const hba1c = parseFloat(document.getElementById('l-hba1c').value);
+      
+      if (fasting || postMeal || hba1c) {
+        let status = 'NORMAL';
+        let color = 'success';
+        let recommendation = 'Maintain healthy diet and exercise';
+        
+        if (fasting > 126 || postMeal > 200 || hba1c > 6.5) {
+          status = 'DIABETIC - SEVERE';
+          color = 'danger';
+          recommendation = 'Consult endocrinologist immediately';
+          totalScore -= 25;
+          issues++;
+        } else if (fasting > 100 || postMeal > 140 || hba1c > 5.7) {
+          status = 'PRE-DIABETIC';
+          color = 'warning';
+          recommendation = 'Lifestyle modifications needed';
+          totalScore -= 15;
+          issues++;
+        }
+        
+        verdicts.innerHTML += createLabCard('Metabolic Panel', status, color, recommendation, 
+          `Fasting: ${fasting || 'N/A'} mg/dL, Post-Meal: ${postMeal || 'N/A'} mg/dL, HbA1c: ${hba1c || 'N/A'}%`);
+        logVault('Lab Test: Metabolic Panel', status, 'test');
+      }
+      
+      // Cardiac Panel
+      const systolic = parseFloat(document.getElementById('l-sys').value);
+      const diastolic = parseFloat(document.getElementById('l-dia').value);
+      const hr = parseFloat(document.getElementById('l-hr').value);
+      
+      if (systolic || diastolic || hr) {
+        let status = 'NORMAL';
+        let color = 'success';
+        let recommendation = 'Blood pressure is healthy';
+        
+        if (systolic > 140 || diastolic > 90) {
+          status = 'HYPERTENSION - STAGE 2';
+          color = 'danger';
+          recommendation = 'See cardiologist, medication needed';
+          totalScore -= 20;
+          issues++;
+        } else if (systolic > 130 || diastolic > 80) {
+          status = 'ELEVATED BP';
+          color = 'warning';
+          recommendation = 'Monitor BP, reduce salt intake';
+          totalScore -= 10;
+          issues++;
+        }
+        
+        if (hr > 100) {
+          recommendation += ' | Heart rate elevated';
+          totalScore -= 5;
+        }
+        
+        verdicts.innerHTML += createLabCard('Cardiac Panel', status, color, recommendation,
+          `BP: ${systolic || 'N/A'}/${diastolic || 'N/A'} mmHg, HR: ${hr || 'N/A'} bpm`);
+        logVault('Lab Test: Cardiac Panel', status, 'test');
+      }
+      
+      // Renal & Hepatic
+      const creatinine = parseFloat(document.getElementById('l-cre').value);
+      const alt = parseFloat(document.getElementById('l-alt').value);
+      const bili = parseFloat(document.getElementById('l-bili').value);
+      
+      if (creatinine || alt || bili) {
+        let status = 'NORMAL';
+        let color = 'success';
+        let recommendation = 'Kidney and liver function healthy';
+        
+        if (creatinine > 1.3 || alt > 56 || bili > 1.2) {
+          status = 'IMPAIRED FUNCTION';
+          color = 'danger';
+          recommendation = 'Specialist consultation required';
+          totalScore -= 20;
+          issues++;
+        } else if (creatinine > 1.1 || alt > 40) {
+          status = 'BORDERLINE';
+          color = 'warning';
+          recommendation = 'Retest in 2 weeks, stay hydrated';
+          totalScore -= 10;
+          issues++;
+        }
+        
+        verdicts.innerHTML += createLabCard('Renal & Hepatic', status, color, recommendation,
+          `Creatinine: ${creatinine || 'N/A'} mg/dL, ALT: ${alt || 'N/A'} U/L, Bilirubin: ${bili || 'N/A'} mg/dL`);
+        logVault('Lab Test: Renal & Hepatic', status, 'test');
+      }
+      
+      // Lipid Profile
+      const totalChol = parseFloat(document.getElementById('l-total-chol').value);
+      const ldl = parseFloat(document.getElementById('l-ldl').value);
+      const hdl = parseFloat(document.getElementById('l-hdl').value);
+      
+      if (totalChol || ldl || hdl) {
+        let status = 'NORMAL';
+        let color = 'success';
+        let recommendation = 'Cholesterol levels are optimal';
+        
+        if (totalChol > 240 || ldl > 160) {
+          status = 'HIGH CHOLESTEROL';
+          color = 'danger';
+          recommendation = 'Statin therapy recommended';
+          totalScore -= 20;
+          issues++;
+        } else if (totalChol > 200 || ldl > 130) {
+          status = 'BORDERLINE HIGH';
+          color = 'warning';
+          recommendation = 'Diet modification, exercise';
+          totalScore -= 10;
+          issues++;
+        }
+        
+        if (hdl < 40) {
+          recommendation += ' | Increase HDL through exercise';
+          totalScore -= 5;
+        }
+        
+        verdicts.innerHTML += createLabCard('Lipid Profile', status, color, recommendation,
+          `Total: ${totalChol || 'N/A'} mg/dL, LDL: ${ldl || 'N/A'} mg/dL, HDL: ${hdl || 'N/A'} mg/dL`);
+        logVault('Lab Test: Lipid Profile', status, 'test');
+      }
+      
+      // Overall Health Score
+      totalScore = Math.max(0, totalScore);
+      document.getElementById('health-score').textContent = totalScore + '%';
+      const healthBar = document.getElementById('overall-health-bar');
+      setTimeout(() => {
+        healthBar.style.width = totalScore + '%';
+        if (totalScore < 60) {
+          healthBar.style.background = 'linear-gradient(90deg, #ef4444, #f59e0b)';
+        } else if (totalScore < 80) {
+          healthBar.style.background = 'linear-gradient(90deg, #f59e0b, #eab308)';
+        }
+      }, 100);
+      
+      showLoading(false);
+      window.scrollTo({top: resultsBox.offsetTop - 100, behavior: 'smooth'});
+      showToast(`Lab analysis complete! ${issues} area(s) need attention.`);
+    }, 2000);
+  }
+
+  function createLabCard(title, status, color, recommendation, values) {
+    return `
+      <div class="col-md-6">
+        <div class="nexus-card border-${color} p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h6 class="fw-bold mb-0">${title}</h6>
+            <span class="badge bg-${color}">${status}</span>
+          </div>
+          <p class="small text-muted mb-2">${values}</p>
+          <p class="small mb-0"><i class="bi bi-lightbulb text-warning me-1"></i><strong>Recommendation:</strong> ${recommendation}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // HEALTH TRACKER FUNCTIONS
+  function incrementMetric(type) {
+    healthMetrics[type]++;
+    document.getElementById(type + '-intake').textContent = healthMetrics[type];
+    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} logged successfully!`);
+  }
+
+  function openCalorieModal() {
+    const calories = prompt('Enter calories consumed:');
+    if (calories) {
+      healthMetrics.calories += parseInt(calories);
+      document.getElementById('calories').textContent = healthMetrics.calories;
+      showToast('Calories logged!');
+    }
+  }
+
+  function openStepsModal() {
+    const steps = prompt('Enter steps walked:');
+    if (steps) {
+      healthMetrics.steps += parseInt(steps);
+      document.getElementById('steps').textContent = healthMetrics.steps;
+      showToast('Steps logged!');
+    }
+  }
+
+  function openSleepModal() {
+    const sleep = prompt('Enter hours slept:');
+    if (sleep) {
+      healthMetrics.sleep += parseFloat(sleep);
+      document.getElementById('sleep-hours').textContent = healthMetrics.sleep.toFixed(1);
+      showToast('Sleep hours logged!');
+    }
+  }
+
+  function openMedicationModal() {
+    const medName = prompt('Enter medication name:');
+    if (medName) {
+      const medList = document.getElementById('medication-list');
+      if (medList.textContent.includes('No medications')) {
+        medList.innerHTML = '';
+      }
+      medList.innerHTML += `
+        <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 mb-2">
+          <div>
+            <strong>${medName}</strong>
+            <p class="small text-muted mb-0">Daily at 9:00 AM</p>
+          </div>
+          <i class="bi bi-bell-fill text-primary"></i>
+        </div>
+      `;
+      showToast('Medication reminder added!');
+    }
+  }
+
+  // TELEMEDICINE FUNCTIONS
+  function startVideoCall() {
+    showToast('Connecting to available doctor...');
+    setTimeout(() => showToast('Video call feature coming soon!'), 1500);
+  }
+
+  function phoneCall() {
+    showToast('Initiating phone consultation...');
+  }
+
+  // APPOINTMENT FUNCTIONS
+  function openBookingModal() {
+    showToast('Appointment booking system launching...');
+  }
+
+  // CHAT FUNCTIONS
+  function toggleChat() {
+    document.getElementById('chatWidget').classList.toggle('open');
+    if (document.getElementById('chatWidget').classList.contains('open')) {
+      document.getElementById('chatToggle').style.display = 'none';
+    } else {
+      document.getElementById('chatToggle').style.display = 'flex';
+    }
+  }
+
+  function openChat() {
+    document.getElementById('chatWidget').classList.add('open');
+    document.getElementById('chatToggle').style.display = 'none';
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML += `
+      <div class="chat-bubble user">
+        <p class="mb-0">${message}</p>
+      </div>
+    `;
+    
+    input.value = '';
+    
+    // AI Response
+    setTimeout(() => {
+      const responses = [
+        "I understand your concern. Based on your symptoms, I recommend consulting with a healthcare professional.",
+        "For that condition, proper hydration and rest are important. Would you like me to suggest some medications?",
+        "Your health metrics look good! Keep maintaining a healthy lifestyle.",
+        "I can help you book an appointment with a specialist. Would you like to proceed?",
+        "Based on your lab results, everything appears normal. Continue your current routine."
+      ];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      chatMessages.innerHTML += `
+        <div class="chat-bubble">
+          <strong>SymptoCare AI</strong>
+          <p class="mb-0 mt-1">${response}</p>
+        </div>
+      `;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // EMERGENCY FUNCTIONS
+  function callEmergency(number) {
+    if (confirm(`Call emergency number ${number}?`)) {
+      showToast('Connecting to emergency services...', 'error');
+      logVault('Emergency Call', `Called emergency number: ${number}`, 'general');
+      setTimeout(() => {
+        window.location.href = `tel:${number}`;
+      }, 500);
+    }
+  }
+
+  function findNearestHospital() {
+    showToast('Finding nearest hospitals...');
+    setTimeout(() => {
+      showToast('Opening map with nearby hospitals');
+      logVault('Hospital Search', 'Searched for nearest emergency hospitals', 'general');
+      // In real app: window.open with Google Maps API
+    }, 1000);
+  }
+
+  function emergencyDoctor() {
+    showToast('Connecting to emergency on-call doctor...');
+    setTimeout(() => {
+      showToast('Doctor will connect in 30 seconds');
+      logVault('Emergency Consultation', 'Requested emergency doctor consultation', 'general');
+    }, 1000);
+  }
+
+  // Initialize
+  window.addEventListener('load', () => {
+    showToast('Welcome to SymptoCare! Your complete health companion.');
+  });
+</script>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+  <div class="container">
+    <div class="row g-4 pb-4">
+      <!-- About Section -->
+      <div class="col-lg-3 col-md-6">
+        <h4 class="fw-bold mb-4" style="font-family: 'Space Grotesk', sans-serif;">
+          <i class="bi bi-heart-pulse-fill text-primary me-2"></i>SymptoCare
+        </h4>
+        <p class="text-white-50 mb-4">
+          Your complete AI-powered healthcare companion. Professional medical services, diagnostics, and wellness tracking—all in one platform.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-white-50 hover-primary" style="font-size: 1.5rem; transition: 0.3s;"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-white-50 hover-primary" style="font-size: 1.5rem; transition: 0.3s;"><i class="bi bi-twitter"></i></a>
+          <a href="#" class="text-white-50 hover-primary" style="font-size: 1.5rem; transition: 0.3s;"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-white-50 hover-primary" style="font-size: 1.5rem; transition: 0.3s;"><i class="bi bi-linkedin"></i></a>
+        </div>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="fw-bold mb-4">Quick Links</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" onclick="showView('home'); return false;" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-chevron-right me-2"></i>Home</a></li>
+          <li class="mb-2"><a href="#" onclick="showView('pharmacy'); return false;" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-chevron-right me-2"></i>Pharmacy</a></li>
+          <li class="mb-2"><a href="#" onclick="showView('vision'); return false;" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-chevron-right me-2"></i>Vision AI</a></li>
+          <li class="mb-2"><a href="#" onclick="showView('lab'); return false;" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-chevron-right me-2"></i>Diagnostics</a></li>
+          <li class="mb-2"><a href="#" onclick="showView('telemedicine'); return false;" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-chevron-right me-2"></i>Telemedicine</a></li>
+          <li class="mb-2"><a href="#" onclick="showView('emergency'); return false;" class="text-danger text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Emergency</a></li>
+        </ul>
+      </div>
+      
+      <!-- Services -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="fw-bold mb-4">Our Services</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>AI Health Scanning</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>Online Pharmacy</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>Lab Diagnostics</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>Doctor Consultations</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>Health Tracking</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary"><i class="bi bi-check2 text-success me-2"></i>Medical Records</a></li>
+        </ul>
+      </div>
+      
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="fw-bold mb-4">Contact Us</h5>
+        <ul class="list-unstyled">
+          <li class="mb-3">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+            <span class="text-white-50">Hyderabad, Telangana<br>India - 500001</span>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-telephone-fill text-primary me-2"></i>
+            <a href="tel:+911234567890" class="text-white-50 text-decoration-none hover-primary">+91 123 456 7890</a>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            <a href="mailto:support@symptocare.com" class="text-white-50 text-decoration-none hover-primary">support@symptocare.com</a>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-clock-fill text-primary me-2"></i>
+            <span class="text-white-50">24/7 Available</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Emergency Banner -->
+    <div class="alert alert-danger mb-4 border-danger" style="background: rgba(239, 68, 68, 0.1);">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+          <div>
+            <strong>Emergency Helpline</strong>
+            <p class="mb-0 small">Available 24/7 for immediate medical assistance</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3">
+          <a href="tel:108" class="btn btn-danger rounded-pill px-4"><i class="bi bi-telephone-fill me-2"></i>108</a>
+          <a href="tel:112" class="btn btn-outline-danger rounded-pill px-4"><i class="bi bi-telephone-fill me-2"></i>112</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Bar -->
+    <div class="border-top border-secondary pt-4">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+          <p class="mb-0 text-white-50">
+            © 2026 SymptoCare. All rights reserved. | Made with <i class="bi bi-heart-fill text-danger"></i> in India
+          </p>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <a href="#" class="text-white-50 text-decoration-none me-3 hover-primary">Privacy Policy</a>
+          <a href="#" class="text-white-50 text-decoration-none me-3 hover-primary">Terms of Service</a>
+          <a href="#" class="text-white-50 text-decoration-none hover-primary">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Certifications -->
+    <div class="text-center mt-4 pt-3 border-top border-secondary">
+      <small class="text-white-50">
+        <i class="bi bi-shield-fill-check text-success me-2"></i>ISO 9001:2015 Certified |
+        <i class="bi bi-award-fill text-warning mx-2"></i>HIPAA Compliant |
+        <i class="bi bi-lock-fill text-info mx-2"></i>SSL Secured |
+        <i class="bi bi-check-circle-fill text-primary mx-2"></i>Verified Medical Platform
+      </small>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer .hover-primary:hover { color: var(--ae-cyan) !important; transform: translateX(3px); transition: 0.3s; }
+  footer a { transition: 0.3s; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
